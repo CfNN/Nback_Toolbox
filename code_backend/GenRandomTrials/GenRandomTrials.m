@@ -107,7 +107,7 @@ for t = 1:n_trials
 end
 
 assignin('base', 'trials', trials);
-save('CURRENTTRIALS.mat', 'trials');
+save('CURRENTTRIALS.mat', 'trials', 'blockOutline', 'stimulusList', 'zeroBackYesStimuli');
 disp('Random ''trials'' struct saved as CURRENTTRIALS.mat');
 
 end
