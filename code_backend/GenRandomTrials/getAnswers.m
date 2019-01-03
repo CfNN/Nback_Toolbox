@@ -68,6 +68,11 @@ elseif nBack > 0
     end
 end
 
-assert(nYesTrials == yesTrialsCount, ['Internal error in GenRandomTrials - a block with definition [' num2str(blockDef) '] appears to have the wrong number of "yes" answers - ' num2str(yesTrialsCount) ' were counted, but ' num2str(nYesTrials) ' were required.']);
+% Check that the block has the correct number of "yes" answers. 
+stimString = '';
+for i = 1:numel(stimuli)
+    stimString = [stimString stimuli{i} ', ']; %#ok<AGROW>
+end
+assert(nYesTrials == yesTrialsCount, ['Internal error in GenRandomTrials - a block with definition [' num2str(blockDef) '] appears to have the wrong number of "yes" answers - ' num2str(yesTrialsCount) ' were counted, but ' num2str(nYesTrials) ' were required.  Stimuli: ' stimString '  Answers: ' num2str(cell2mat(answers')) ]);
 
 end

@@ -36,15 +36,15 @@ nYesTrials = round(blockDef(3));
 assert(nBack < nTrials, [num2str(nTrials) " trials per block is not enough trials per block for a " num2str(nBack) "-back experiment"]);
 assert(nYesTrials <= nTrials-nBack, [num2str(nYesTrials) " 'yes' trials is too many to fit in a " num2str(nBack) "-back block with only " num2str(nTrials) " total trials"]);
 
+% Warn the user if the proportion of yes trials exceeds 50%
+if nBack > 0 && nYesTrials/nTrials > 0.5
+    warning('A proportion of "yes" trials in a single block greater than 50% can cause the trial generation algorithm to "get stuck" in an infinite loop, because the possible stimulus orders are too constrained. If the algorithm does not finish within a few seconds, cancel it with "control-c" and try again if necessary');
+end
+
 stimuli = cell(nTrials, 1);
 
-for i = 1:nYesTrials
-    
-    if nBack > 0
-        [stim1, stim2] = getRandomStimPair(stimulusList);
-    elseif nBack == 0
-        [stim1, stim2] = getRandomStimPair(zeroBackYesStimuli);
-    end
+yesTrialCount = 0;
+while yesTrialCount < nYesTrials
     
     % Find an appropriate pair of locations to place the stimulus pair.
     % This is accomplished by first choosing a random stimulus index, and
@@ -54,6 +54,13 @@ for i = 1:nYesTrials
     % - otherwise, start over with a new random index. 
     foundPlace = false;
     while (~foundPlace)
+        
+        if nBack > 0
+            [stim1, stim2] = getRandomStimPair(stimulusList);
+        elseif nBack == 0
+            [stim1, stim2] = getRandomStimPair(zeroBackYesStimuli);
+        end
+        
         firstInd = randi([1, nTrials-nBack]);
         secondInd = firstInd + nBack;
         
@@ -64,7 +71,30 @@ for i = 1:nYesTrials
                 % existing "yes" answer, and would end up with too few of
                 % them)
                 if ~(stimMatch(stimuli{firstInd}, stim1, stimulusList) && stimMatch(stimuli{secondInd}, stim1, stimulusList))
-                    foundPlace = true;
+                    
+                    % Make sure that any newly added stimuli that create
+                    % more than one new "yes" trial by "bridging"
+                    % previously separated matching stimuli do not cause
+                    % the number of yes trials to get too high (not an
+                    % issue for nBack = 0).
+                    if nBack == 0
+                        foundPlace = true;
+                        yesTrialCount = yesTrialCount + 1;
+                    else
+                        yesTrialsAdded = 1;
+                        if firstInd - nBack >= 1 && stimMatch(stim1, stimuli(firstInd - nBack), stimulusList) && ~stimMatch(stimuli{firstInd}, stim1, stimulusList)
+                            yesTrialsAdded = yesTrialsAdded + 1;
+                        end
+                        if secondInd + nBack <= nTrials && stimMatch(stim1, stimuli(secondInd + nBack), stimulusList) && ~stimMatch(stimuli{secondInd}, stim1, stimulusList)
+                            yesTrialsAdded = yesTrialsAdded + 1;
+                        end
+                        
+                        if yesTrialCount + yesTrialsAdded <= nYesTrials
+                            yesTrialCount = yesTrialCount + yesTrialsAdded;
+                            foundPlace = true;
+                        end
+                        
+                    end
                 end
             end
         end

@@ -1,6 +1,18 @@
 % A script that demonstrates how to use the GenRandomTrials function (which
 % is found in the code_backend/GenRandomTrials folder). Modify this as
 % needed to set up your experiment.
+%
+% IMPORTANT NOTE:
+% Blocks with high numbers of "yes" trials can be overly constrained in
+% terms of what stimulus orders are possible - this causes the algorithm to
+% "get stuck" as it attempts to generate a random trial array for that
+% block. In these cases, the algorithm may run forever in an infinite loop
+% - you should cancel its execution using the "control-c" key combination
+% if it has been running for more than a few seconds. Sometimes, in
+% borderline cases, re-starting the algorithm will fix the problem. As a
+% rule of thumb, a proportion of "yes" trials lower than 50% should be
+% fine in most cases (this does not apply in 0-back blocks - you can have
+% as many yes trials as you like in these). 
 
 % Add the GenRandomTrials function folder to the MATLAB path
 addpath('./code_backend/GenRandomTrials');
@@ -31,6 +43,21 @@ blockOutline = {
 % equivalent to each other in the N-back task. In the GenRandomTrials
 % function, a row is randomly chosen from this array for each stimulus
 % presentation.
+% PLEASE NOTE: it is acceptable for some rows to have more aliases than
+% others, but you must include empty "{}" entries for the rows with fewer
+% aliases. For example:
+% INCORRECT (will cause immediate error):
+% stimulusList = {
+%                 'a', 'A', 'eh';
+%                 'b';
+%                 'c', 'C';  
+%                };
+% CORRECT:
+% stimulusList = {
+%                 'a', 'A', 'eh';
+%                 'b', {}, {};
+%                 'c', 'C', {};  
+%                };
            
 stimulusList = {
                 'a', 'A';
