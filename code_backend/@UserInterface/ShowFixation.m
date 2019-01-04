@@ -1,10 +1,10 @@
-function [onsetTimestamp, offsetTimestamp] = ShowFixation(obj, duration, runningVals)
+function [onsetTimestamp, offsetTimestamp] = ShowFixation(obj, duration, settings, runningVals)
 % SHOWFIXATION shows a fixation cross for the specified duration.
 %   Eg. ShowFixation(2.4, runningVals) displays a fixation cross for 2400 milliseconds. 
 
 obj.DrawFixationCross();
 
-obj.DrawPerformanceMetrics(runningVals);
+obj.DrawPerformanceMetrics(settings, runningVals);
 
 [~, onsetTimestamp, ~, ~, ~] = Screen('Flip',obj.window);
 

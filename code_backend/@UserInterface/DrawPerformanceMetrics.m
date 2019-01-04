@@ -1,4 +1,4 @@
-function DrawPerformanceMetrics(obj, runningVals)
+function DrawPerformanceMetrics(obj, settings, runningVals)
 % Draws performance metrics at the bottom of the the screen, without 
 % flipping the screen yet (flipping must be done AFTER calling this 
 % function). 
@@ -6,9 +6,9 @@ function DrawPerformanceMetrics(obj, runningVals)
 % TO DISABLE PERFORMANCE METRICS: Edit ExperimentSettings.m, set 
 % settings.DisplayPerfMetrics = false;
 % 
-% Usage: obj.DrawPerformanceMetrics(runningVals);
+% Usage: obj.DrawPerformanceMetrics(settings, runningVals);
 
-if obj.settings.DisplayPerfMetrics == true
+if settings.DisplayPerfMetrics == true
     
     perfMetrics = [
         'Previous response: ' num2str(runningVals.PreviousResponse) '      Previous reaction time: ' num2str(runningVals.PreviousRT) ' ms\n\nAverage response accuracy: ' num2str(runningVals.AvgResponseAccuracy) '%'

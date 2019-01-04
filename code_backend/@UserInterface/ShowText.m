@@ -5,7 +5,7 @@ function [onsetTimestamp, offsetTimestamp] = ShowText(obj, text, textSize, durat
 
 obj.DrawText(text, textSize);
 
-obj.DrawPerformanceMetrics(runningVals);
+obj.DrawPerformanceMetrics(settings, runningVals);
 
 [~, onsetTimestamp, ~, ~, ~] = Screen('Flip',obj.window);
 

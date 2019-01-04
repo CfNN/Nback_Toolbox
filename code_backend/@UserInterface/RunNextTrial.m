@@ -31,12 +31,11 @@ else
 end
 
 obj.DrawText(trials(runningVals.currentTrial).Stimulus, settings.StimulusTextSize);
-obj.DrawPerformanceMetrics(runningVals);
+obj.DrawPerformanceMetrics(settings, runningVals);
 [~, tStimOn, ~, ~, ~]  = Screen('Flip',obj.window); % GetSecs called internally for timestamp
 trials(runningVals.currentTrial).StimulusOnsetTimestamp = tStimOn;
 
 timedout = false;
-keyPressed = false;
 stimEnded = false;
 while ~timedout
     
@@ -56,12 +55,11 @@ while ~timedout
         % minus StimulusOnsetTimestamp
         trials(runningVals.currentTrial).ReactionTime = keyTime - tStimOn;
         trials(runningVals.currentTrial).Response = KbName(keyCode);
-        keyPressed = true;
     end
     
     % Switch to inter-trial interval (ITI) after settings.StimDur elapses
     if (~stimEnded && (keyTime - tStimOn) > settings.StimDur)
-        obj.DrawPerformanceMetrics(runningVals);
+        obj.DrawPerformanceMetrics(settings, runningVals);
         if strcmpi(settings.ITIStim, "fixation")
             obj.DrawFixationCross();
         end

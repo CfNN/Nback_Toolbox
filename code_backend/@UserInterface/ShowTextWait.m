@@ -6,7 +6,7 @@ function [onsetTimestamp, offsetTimestamp] = ShowTextWait(obj, text, textSize, r
 
 obj.DrawText(text, textSize);
 
-obj.DrawPerformanceMetrics(runningVals);
+obj.DrawPerformanceMetrics(settings, runningVals);
 
 [~, onsetTimestamp, ~, ~, ~] = Screen('Flip',obj.window);
 

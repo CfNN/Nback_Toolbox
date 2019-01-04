@@ -1,6 +1,6 @@
-function ShowInstructions(obj)
+function ShowInstructions(obj, settings)
 % SHOWINSTRUCTIONS - Show a series of introductory/instruction screens
-%   Usage: ShowInstructions();
+%   Usage: ShowInstructions(settings);
 % See also SHOWREADYTRIGGER
 % -------------------
 
@@ -12,8 +12,8 @@ RestrictKeysForKbCheck(activeKeys);
 
 instructions = [ % Use \n to start a new line. Just one \n doesn't give enough space - best to use two or three
     'Now we''re ready to start!\n\n\n',...
-    'Press the 1 key to answer YES.\n\n\n',...
-    'Press the 2 key to answer NO.\n\n\n',...
+    'Press the ' settings.YesKeyIDs{1} ' key to answer YES.\n\n\n',...
+    'Press the ' settings.NoKeyIDs{1} ' key to answer NO.\n\n\n',...
     'Make your choice as quickly as possible!'
     ];
 

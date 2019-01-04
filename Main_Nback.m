@@ -54,10 +54,10 @@ end
 clear cancelled;
 
 % Initialize the user interface (ui) and PsychToolbox
-ui = UserInterface(settings);
+ui = UserInterface();
 
 % Use the ui to show experiment instructions
-ui.ShowInstructions();
+ui.ShowInstructions(settings);
 
 % Use the ui to show the "ready" screen with a timer, and wait for the MRI
 % trigger (or a key press, depending on what is specified in
@@ -66,11 +66,11 @@ ui.ShowInstructions();
 % triggerTimestamp, there is be a (tiny) time difference between when
 % the two are recorded! For this reason, always use triggerTimestamp for 
 % important calculations if possible. 
-[triggerTimestamp, sessionStartDateTime] = ui.ShowReadyTrigger();
+[triggerTimestamp, sessionStartDateTime] = ui.ShowReadyTrigger(settings);
 
 % Use the ui to show a fixation cross for the specified amount of time in
 % seconds
-[sessionStartFixationOnsetTimestamp, sessionStartFixationOffsetTimestamp] = ui.ShowFixation(settings.SessionStartFixationDur, runningVals);
+[sessionStartFixationOnsetTimestamp, sessionStartFixationOffsetTimestamp] = ui.ShowFixation(settings.SessionStartFixationDur, settings, runningVals);
 
 % Loop through the trials structure (note - runningVals.currentTrial keeps
 % track of which trial you are on)
@@ -114,7 +114,7 @@ end
 
 % Use the ui to show a fixation cross for the specified amount of time in
 % seconds
-[sessionEndFixationOnsetTimestamp, sessionEndFixationOffsetTimestamp] = ui.ShowFixation(settings.SessionEndFixationDur, runningVals);
+[sessionEndFixationOnsetTimestamp, sessionEndFixationOffsetTimestamp] = ui.ShowFixation(settings.SessionEndFixationDur, settings, runningVals);
 
 % Clear the screen and unneeded variables.
 sca;

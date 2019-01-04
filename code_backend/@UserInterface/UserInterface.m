@@ -6,10 +6,6 @@ classdef UserInterface < handle
 % primarily by calling functions in this class.
     
     properties (GetAccess=private)
-        % Settings (initialized once by main script, never change during
-        % experiment)
-        settings;
-        
         % Screen properties
         window;
         windowRect;
@@ -28,9 +24,7 @@ classdef UserInterface < handle
     end
     
     methods
-        function obj = UserInterface(settings_init)
-            
-            obj.settings = settings_init;
+        function obj = UserInterface()
             
             % Call some default settings for setting up Psychtoolbox
             PsychDefaultSetup(2);
@@ -75,13 +69,13 @@ classdef UserInterface < handle
             
         end
         
-        ShowInstructions(obj);
+        ShowInstructions(obj, settings);
         
-        [triggerTimestamp, sessionStartDateTime] = ShowReadyTrigger(obj);
+        [triggerTimestamp, sessionStartDateTime] = ShowReadyTrigger(obj, settings);
         
-        [onsetTimestamp, offsetTimestamp] = ShowFixation(obj, duration, runningVals);
+        [onsetTimestamp, offsetTimestamp] = ShowFixation(obj, duration, settings, runningVals);
         
-        [onsetTimestamp, offsetTimestamp] = ShowBlank(obj, duration, runningVals);
+        [onsetTimestamp, offsetTimestamp] = ShowBlank(obj, duration, settings, runningVals);
         
         [onsetTimestamp, offsetTimestamp] = ShowText(obj, text, textSize, duration, runningVals);
         
@@ -94,7 +88,7 @@ classdef UserInterface < handle
     end
     
     methods (Access = private)
-        DrawPerformanceMetrics(obj, runningVals);
+        DrawPerformanceMetrics(obj, settings, runningVals);
         DrawFixation(obj);
         DrawText(obj, text, textSize);
     end

@@ -33,7 +33,7 @@ timedout = false;
         if timer ~= prevTimer
             Screen('TextSize', obj.window, textSize);
             DrawFormattedText(obj.window, [text '\n\n\n\nRest time remaining:' num2str(timer)], 'center', 'center', obj.c_white);
-            obj.DrawPerformanceMetrics(runningVals);
+            obj.DrawPerformanceMetrics(settings, runningVals);
             if initialOnset
                 [~, onsetTimestamp, ~, ~, ~] = Screen('Flip',obj.window);
                 initialOnset = false;
