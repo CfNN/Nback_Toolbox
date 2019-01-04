@@ -1,6 +1,6 @@
-function answers = getAnswers(stimuli, blockDef, stimulusList, zeroBackYesStimuli)
-% GETANSWERS: iterates through a block of stimulus names and determines
-% which stimuli should elicit "yes" answers. 
+function correctYesNo = getCorrectYesNo(stimuli, blockDef, stimulusList, zeroBackYesStimuli)
+% GETCORRECTYESNO: iterates through a block of stimulus names and determines
+% which stimuli should elicit "yes" responses. 
 %
 % stimuli: a cell array of strings with a single column - specifies a
 % sequence of stimulus names to be presented during an experiment block.
@@ -23,7 +23,7 @@ function answers = getAnswers(stimuli, blockDef, stimulusList, zeroBackYesStimul
 % with a single row. This defines the stimulus names for which the correct
 % answer should be "yes" in a zero-back block.
 %
-% answers: a cell array of booleans with one column, where each value of '1' or
+% correctYesNo: a cell array of booleans with one column, where each value of '1' or
 % 'true' represents a "yes" trial and each value of '0' or 'false'
 % represents a "no" trial. 
 
@@ -34,33 +34,33 @@ nYesTrials = round(blockDef(3));
 % Use this to count up "yes" trials as the algorithm runs, in order to check that the number is consistent with what was specified
 yesTrialsCount = 0; 
 
-answers = cell(nTrials, 1);
+correctYesNo = cell(nTrials, 1);
 
 if nBack == 0
     for i = 1:nTrials
-        answer = false;
+        yesNo = false;
         for j = 1:numel(zeroBackYesStimuli)
             if stimMatch(stimuli{i}, zeroBackYesStimuli{j}, zeroBackYesStimuli)
-                answer = true;
+                yesNo = true;
                 yesTrialsCount = yesTrialsCount + 1;
                 break;
             end
         end
-        answers(i) = {answer};
+        correctYesNo(i) = {yesNo};
     end
 elseif nBack > 0
     nBackStims = stimuli(1:nBack);
     
     for i = 1:nBack
-        answers(i) = {false};
+        correctYesNo(i) = {false};
     end
     
     for i = 1+nBack:numel(stimuli)
         if stimMatch(stimuli{i}, nBackStims{1}, stimulusList)
-            answers(i) = {true};
+            correctYesNo(i) = {true};
             yesTrialsCount = yesTrialsCount + 1;
         else
-            answers(i) = {false};
+            correctYesNo(i) = {false};
         end
         
         nBackStims = vertcat(nBackStims, stimuli(i)); %#ok<AGROW>
@@ -73,6 +73,6 @@ stimString = '';
 for i = 1:numel(stimuli)
     stimString = [stimString stimuli{i} ', ']; %#ok<AGROW>
 end
-assert(nYesTrials == yesTrialsCount, ['Internal error in GenRandomTrials - a block with definition [' num2str(blockDef) '] appears to have the wrong number of "yes" answers - ' num2str(yesTrialsCount) ' were counted, but ' num2str(nYesTrials) ' were required.  Stimuli: ' stimString '  Answers: ' num2str(cell2mat(answers')) ]);
+assert(nYesTrials == yesTrialsCount, ['Internal error in GenRandomTrials - a block with definition [' num2str(blockDef) '] appears to have the wrong number of "yes" answers - ' num2str(yesTrialsCount) ' were counted, but ' num2str(nYesTrials) ' were required.  Stimuli: ' stimString '  Yes/No booleans: ' num2str(cell2mat(correctYesNo')) ]);
 
 end

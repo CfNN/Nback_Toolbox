@@ -47,7 +47,7 @@ n_trials = 0;
 blockNumbers = {};
 nbackNumbers = {};
 stimuli = {};
-correctAnswers = {};
+correctYesNo = {};
 newBlockNumber = 1;
 for run = 1:size(blockOutline, 1)
     for cycle = 1:blockOutline{run, 1}
@@ -67,11 +67,11 @@ for run = 1:size(blockOutline, 1)
             newStimuli = genRandomBlock(blockDef, stimulusList, zeroBackYesStimuli);
             stimuli = vertcat(stimuli, newStimuli); %#ok<AGROW>
             
-            % Note - the getAnswers function internally checks that the
+            % Note - the getCorrectYesNo function internally checks that the
             % number of correct answers matches that defined in the
             % blockDef. 
-            newCorrectAnswers = getAnswers(newStimuli, blockDef, stimulusList, zeroBackYesStimuli); 
-            correctAnswers = vertcat(correctAnswers, newCorrectAnswers); %#ok<AGROW>
+            newCorrectYesNo = getCorrectYesNo(newStimuli, blockDef, stimulusList, zeroBackYesStimuli); 
+            correctYesNo = vertcat(correctYesNo, newCorrectYesNo); %#ok<AGROW>
 
             n_trials = n_trials + blockDef(2);
         end
@@ -83,20 +83,14 @@ trials(n_trials) = struct();
 [trials.BlockNumber] = blockNumbers{:};
 [trials.Nback] = nbackNumbers{:};
 [trials.Stimulus] = stimuli{:};
-[trials.CorrectAnswer] = correctAnswers{:};
-
-% Generate CorrectAnswer as boolean, check to make sure that each block has
-% exactly the right number of "yes" answers. Separate analysis for each
-% block.
-for t = 1:n_trials
-    
-end
+[trials.YesTrial] = correctYesNo{:};
 
 % Initialize empty fields;
 for t = 1:n_trials
     
-    trials(t).Answer = false;
-    trials(t).Correct = false; %Boolean indicating whether Answer matches CorrectAnswer
+    trials(t).Response = 'none';
+    trials(t).Correct = false; % Boolean indicating whether participant responded correctly
+    trials(t).ReactionTime = NaN;
     
     % Initialize Timestamps to NaN
     trials(t).StimulusOnsetTimestamp = NaN;

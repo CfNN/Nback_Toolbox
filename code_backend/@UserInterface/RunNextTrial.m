@@ -13,7 +13,12 @@ function [trials, runningVals, quitKeyPressed] = RunNextTrial(obj, trials, setti
 quitKeyPressed = false;
 
 % Specify allowable key names, restrict input to these (if empty list "[]",
-% all keys are allowed)
+% all keys are allowed). Uncomment the following line (and comment the next
+% one) to restrict all keys except those of interest. This is not normally
+% preferred, because participants may press the wrong buttons at times
+% without the experimenter knowing,  and it is often best to log the data
+% anyway and sort it out later.
+% activeKeys = [KbName(settings.YesKeyIDs) KbName(settings.NoKeyIDs) KbName('Escape') KbName('q')];
 activeKeys = [];
 RestrictKeysForKbCheck(activeKeys);
 
@@ -33,23 +38,24 @@ trials(runningVals.currentTrial).StimulusOnsetTimestamp = tStimOn;
 timedout = false;
 keyPressed = false;
 stimEnded = false;
-startedPolling = false;
 while ~timedout
     
     % Check for keyboard presses while also getting a timestamp (timestamp
     % is recorded in keyTime regardless of whether a key was pressed)
     [ keyIsDown, keyTime, keyCode ] = KbCheck; % keyTime is from an internal call to GetSecs
 
-    % Record response timestamp and response if key pressed (once polling
-    % period begins)
-    if (startedPolling && keyIsDown)
+    % Record response and response timestamp if key pressed
+    if (keyIsDown)
         if strcmpi(KbName(keyCode), 'q') || strcmpi(KbName(keyCode), 'escape')
             quitKeyPressed = true;
             return;
         end
 
         trials(runningVals.currentTrial).ResponseTimestamp = keyTime;
-        trials(runningVals.currentTrial).Answer = true;
+        % Note: ReactionTime is exactly the same as ResponseTimestamp
+        % minus StimulusOnsetTimestamp
+        trials(runningVals.currentTrial).ReactionTime = keyTime - tStimOn;
+        trials(runningVals.currentTrial).Response = KbName(keyCode);
         keyPressed = true;
     end
     
@@ -64,16 +70,8 @@ while ~timedout
         trials(runningVals.currentTrial).StimulusOffsetTimestamp = tStimOff;
     end
     
-    % Turn on answer polling after settings.AnswerPollDelay elapses
-    if (~startedPolling && (keyTime - tStimOn) > settings.AnswerPollDelay)
-        startedPolling = true;
-    end
-    
     % Time out after the settings.StimDur and ITIDur both elapse
     if ((keyTime - tStimOn) > settings.StimDur + ITIDur)
-        if ~keyPressed
-            trials(runningVals.currentTrial).Answer = 0;
-        end
         [~, tITIEnd, ~, ~, ~]  = Screen('Flip',obj.window); % GetSecs called internally for timestamp
         trials(runningVals.currentTrial).ITIOffsetTimestamp = tITIEnd;
         timedout = true;
@@ -81,12 +79,21 @@ while ~timedout
     
 end
 
-% Check if answer is correct
-if trials(runningVals.currentTrial).Answer == trials(runningVals.currentTrial).CorrectAnswer
-    trials(runningVals.currentTrial).Correct = true;
+% Check if response is correct
+if trials(runningVals.currentTrial).YesTrial == true
+    correctKeys = settings.YesKeyIDs;
 else
-    trials(runningVals.currentTrial).Correct = false;
+    correctKeys = settings.NoKeyIDs;
 end
+
+correct = false;
+for i = 1:numel(correctKeys)
+    if strcmpi(correctKeys{i}, trials(runningVals.currentTrial).Response)
+        correct = true;
+        break;
+    end
+end
+trials(runningVals.currentTrial).Correct = correct;
 
 % Re-enable all keys (restricted during trial)
 RestrictKeysForKbCheck([]);

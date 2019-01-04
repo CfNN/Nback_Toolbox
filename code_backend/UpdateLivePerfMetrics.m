@@ -6,10 +6,13 @@ function runningVals = UpdateLivePerfMetrics(runningVals, trials)
 % -------------
 
 % Get previous answer
-runningVals.PreviousAnswer = trials(runningVals.currentTrial).Answer;
+runningVals.PreviousResponse = trials(runningVals.currentTrial).Response;
 
 % Calculate average response accuracy (proportion of correct answers)
 prevTrials = trials(1:runningVals.currentTrial);
 runningVals.AvgResponseAccuracy = round( nnz([prevTrials.Correct])/numel(prevTrials) * 100);
+
+% Get previous reaction time
+runningVals.PreviousRT = round(1000*trials(runningVals.currentTrial).ReactionTime);
 
 end

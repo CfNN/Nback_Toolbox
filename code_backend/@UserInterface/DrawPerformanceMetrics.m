@@ -11,7 +11,7 @@ function DrawPerformanceMetrics(obj, runningVals)
 if obj.settings.DisplayPerfMetrics == true
     
     perfMetrics = [
-        'Previous answer: ' num2str(runningVals.PreviousAnswer) '      Average response accuracy: ' num2str(runningVals.AvgResponseAccuracy) '%'
+        'Previous response: ' num2str(runningVals.PreviousResponse) '      Previous reaction time: ' num2str(runningVals.PreviousRT) ' ms\n\nAverage response accuracy: ' num2str(runningVals.AvgResponseAccuracy) '%'
         ];
     
     Screen('TextSize', obj.window, 18);
@@ -19,7 +19,7 @@ if obj.settings.DisplayPerfMetrics == true
     Screen('TextSTyle', obj.window, 0); % 0 is regular (not bold, italicized, etc)
     % Change the value in "obj.screenYpixels - 50" to modify the vertical
     % position of the performance metrics.
-    DrawFormattedText(obj.window, perfMetrics, 'center', obj.screenYpixels - 25, obj.c_white);
+    DrawFormattedText(obj.window, perfMetrics, 'center', obj.screenYpixels - 50, obj.c_white);
 end
 
 end

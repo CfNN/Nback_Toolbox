@@ -8,4 +8,7 @@ runningVals.currentTrial = 1;
 
 % Variables for keeping track of live performance metrics 
 runningVals.AvgResponseAccuracy = -1; % Meaningless default value
-runningVals.PreviousAnswer = -1; % Meaningless default value
+runningVals.PreviousResponse = -1; % Meaningless default value
+% Reaction time of previous trial - if too short, participant may just be
+% mashing the keyboard/button box
+runningVals.PreviousRT = -1; % Meaningless default value

@@ -23,7 +23,7 @@ addpath('./software_tests/');
 
 try
     % Contains the pre-generated "trials" struct array
-    load('CURRENTTRIALS.mat', 'trials');
+    load('CURRENTTRIALS.mat', 'trials', 'blockOutline', 'stimulusList', 'zeroBackYesStimuli');
 catch
     error('CURRENTTRIALS.mat not found. Generate a trial sequence by running GenRandomTrials.m or GenRandomTrialsSimple.m. Type ''help GenRandomTrials'' or ''help GenRandomTrialsSimple'' in the MATLAB console for information on how to use these functions.');
 end
@@ -76,13 +76,13 @@ ui.ShowInstructions();
 % track of which trial you are on)
 while (runningVals.currentTrial <= length(trials))
     
-    % Show a message at the beginning of each block
+    % Show a rest/instruction message at the beginning of each block
     if runningVals.currentTrial == 1 || trials(runningVals.currentTrial).BlockNumber > trials(runningVals.currentTrial - 1).BlockNumber
         
-        msg = ['In the next block:\n\nRemember ' num2str(trials(runningVals.currentTrial).Nback) ' trials back \n\n\n\n\n\n\nPress any key to continue'];
-        
-        if runningVals.currentTrial > 1
-            msg = ['Rest Break\n\n\n' msg]; %#ok<AGROW>
+        if trials(runningVals.currentTrial).Nback == 0
+            msg = ['Press ''' settings.YesKeyIDs{1} ''' if the letter is ' commaSepList(zeroBackYesStimuli, 'or', true) '\n\nPress ''' settings.NoKeyIDs{1} ''' for any other letter'];
+        elseif trials(runningVals.currentTrial).Nback > 0
+            msg = ['Press ''' settings.YesKeyIDs{1} ''' if the letter matches the one seen ' num2str(trials(runningVals.currentTrial).Nback) ' trials ago\n\nPress ''' settings.NoKeyIDs{1} ''' if it does not match'];
         end
         
         ui.RestBreak(msg, 28, settings.RestDur, settings, runningVals);
@@ -96,13 +96,13 @@ while (runningVals.currentTrial <= length(trials))
     if quitKeyPressed
         % Clear the screen and unneeded variables
         sca;
-        clear ui;
+        clear ui msg;
         % Stop this script from running to end experiment session
         return; 
     end
     
     % Autosave data in case the experiment is interrupted partway through
-    save(['subj' num2str(subjectNumber) '_sess' num2str(sessionNumber) '_' settings.ExperimentName '_AUTOSAVE.mat'], 'trials', 'settings', 'subjectNumber', 'sessionNumber', 'subjectHandedness', 'triggerTimestamp', 'sessionStartDateTime', 'sessionStartFixationOnsetTimestamp', 'sessionStartFixationOffsetTimestamp');
+    save(['subj' num2str(subjectNumber) '_sess' num2str(sessionNumber) '_' settings.ExperimentName '_AUTOSAVE.mat'], 'trials', 'settings', 'subjectNumber', 'sessionNumber', 'subjectHandedness', 'triggerTimestamp', 'sessionStartDateTime', 'sessionStartFixationOnsetTimestamp', 'sessionStartFixationOffsetTimestamp', 'blockOutline', 'stimulusList', 'zeroBackYesStimuli');
     
     % Update the live performance metrics that are optionally displayed on
     % the screen (see ExperimentSettings.m to disable/enable)
@@ -118,8 +118,8 @@ end
 
 % Clear the screen and unneeded variables.
 sca;
-clear ui;
+clear ui msg;
 
 % Save the data to a .mat, delete autosaved version
-save(['subj' num2str(subjectNumber) '_sess' num2str(sessionNumber) '_' settings.ExperimentName '.mat'], 'trials', 'settings', 'subjectNumber', 'sessionNumber', 'subjectHandedness', 'triggerTimestamp', 'sessionStartDateTime', 'sessionStartFixationOnsetTimestamp', 'sessionStartFixationOffsetTimestamp', 'sessionEndFixationOnsetTimestamp', 'sessionEndFixationOffsetTimestamp');
+save(['subj' num2str(subjectNumber) '_sess' num2str(sessionNumber) '_' settings.ExperimentName '.mat'], 'trials', 'settings', 'subjectNumber', 'sessionNumber', 'subjectHandedness', 'triggerTimestamp', 'sessionStartDateTime', 'sessionStartFixationOnsetTimestamp', 'sessionStartFixationOffsetTimestamp', 'sessionEndFixationOnsetTimestamp', 'sessionEndFixationOffsetTimestamp', 'blockOutline', 'stimulusList', 'zeroBackYesStimuli');
 delete(['subj' num2str(subjectNumber) '_sess' num2str(sessionNumber) '_' settings.ExperimentName '_AUTOSAVE.mat']);

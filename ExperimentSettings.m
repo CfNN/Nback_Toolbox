@@ -6,11 +6,6 @@
 % data files:
 settings.ExperimentName = 'Nback';
 
-% Literally puts the "N" in "Nback". Determines how many trials back a
-% participant must remember stimuli to determine if they match the
-% subsequent stimuli. This is overridden in 0-back blocks. 
-settings.N = 2;
-
 % Set whether an MRI trigger will be used to start the experiment session
 % (otherwise a key press will be used)
 settings.UseMRITrigger = false;
@@ -19,15 +14,27 @@ settings.UseMRITrigger = false;
 % screen during the experiment session. To hide metrics, set to "false"
 settings.DisplayPerfMetrics = true;
 
-% Stimulus duration
-settings.StimDur = 0.5; % seconds
+% Determines which keyboard keys are used by the participant for "yes" or
+% "no" responses. Entires can be single numbers/letters for number or
+% letter keys. 'RightArrow', 'LeftArrow', 'UpArrow', 'DownArrow' also work.
+% Note that if number keys are used, two entries might be necessary, one
+% including the symbol that is conventionally placed on that same key on
+% the keyboard. E.g. '1' is the numpad 1, '1!' is the number row 1. All key
+% presses of keys in the same list will be recorded as the first entry in
+% that list. Note also that 'q' and 'Escape' are reserved as 'quit' key
+% shortcuts.
+settings.YesKeyIDs = {'1', '1!'};
+settings.NoKeyIDs  = {'2', '2@'};
 
 % Set what is displayed during the inter-trial interval (ITI). 
 % Set to "blank" for a blank screen, "fixation" for a fixation cross. 
 settings.ITIStim = "fixation";
 
+% Stimulus duration
+settings.StimDur = 0.5; % seconds
+
 % Constant inter-trial interval (ITI) duration
-settings.ITIDur = 2.5; % seconds
+settings.ITIDur = 2.0; % seconds
 
 % % Set to "true" to use a variable inter-trial interval duration, chosen for each
 % % trial from a truncated exponential distribution. 
@@ -53,12 +60,6 @@ settings.RestDur = 30; % seconds
 % you want the participant to wait until settings.RestDur (above) has
 % elapsed. 
 settings.CanSkipBreak = true;
-
-% Delay after the beginning of the stimulus before polling for an answer
-% begins. If, for example, settings.StimDur = 0.5 and
-% settings.AnswerPollDelay = 0.7, the participant can press a key
-% indicating their answer starting 0.2 seconds after the stimulus ends. 
-settings.AnswerPollDelay = 0.7; % seconds
 
 % Duration to display fixation cross before and after running the trials
 % (e.g. to collect 'resting' data and avoid truncating HRF in MRI studies)
