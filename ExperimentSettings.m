@@ -27,7 +27,7 @@ settings.StimDur = 0.5; % seconds
 settings.ITIStim = "fixation";
 
 % Constant inter-trial interval (ITI) duration
-settings.ITIDur = 2.5; % seconds
+settings.ITIDur = 2.0; % seconds
 
 % % Set to "true" to use a variable inter-trial interval duration, chosen for each
 % % trial from a truncated exponential distribution. 
