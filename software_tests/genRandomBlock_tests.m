@@ -52,8 +52,8 @@ N = 112000;
 % 0-back with 9 trials, 33% "yes" trials in each block
 [nOccurences_0_9_3, ~] = make_letter_hist([0 9 3], N, stimulusList, zeroBackYesStimuli, true);
 
-%% 70,000 samples (1,050,000 letters)
-N = 70000;
+%% 67,000 samples (1,005,000 letters)
+N = 67000;
 
 % 2-back with 15 trials, 33% "yes" trials in each block
 [nOccurences_2_15_5, ~] = make_letter_hist([2 15 5], N, stimulusList, zeroBackYesStimuli, true);
