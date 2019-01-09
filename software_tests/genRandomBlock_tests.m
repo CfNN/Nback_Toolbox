@@ -51,31 +51,28 @@ N = 112000;
 
 % 0-back with 9 trials, 33% "yes" trials in each block
 [nOccurences_0_9_3, ~] = make_letter_hist([0 9 3], N, stimulusList, zeroBackYesStimuli, true);
-disp('Figure made');
 
 %% 70,000 samples (1,050,000 letters)
 N = 70000;
 
 % 2-back with 15 trials, 33% "yes" trials in each block
 [nOccurences_2_15_5, ~] = make_letter_hist([2 15 5], N, stimulusList, zeroBackYesStimuli, true);
-disp('Figure made');
 
 %% 10,000 samples (1,000,000 letters)
 N = 10000; 
 
 % 0-back with 100 trials, 33% "yes" trials in each block
 [nOccurences_0_100_33, ~] = make_letter_hist([0 100 33], N, stimulusList, zeroBackYesStimuli, true);
-disp('Figure made');
 
 % 2-back with 100 trials, 33% "yes" trials in each block
 [nOccurences_2_100_33, ~] = make_letter_hist([2 100 33], N, stimulusList, zeroBackYesStimuli, true);
-disp('Figure made');
 
 % 5-back with 100 trials, 50% "yes" trials in each block
 [nOccurences_5_100_50, letterChars] = make_letter_hist([5 100 50], N, stimulusList, zeroBackYesStimuli, true);
-disp('Figure made');
 
 clear N;
+
+save('genRandomBlock_tests_data')
 
 %% Function that runs genRandomBlock N times and generates a letter histogram
 function [nOccurences, letterChars] = make_letter_hist(blockDef, N, stimulusList, zeroBackYesStimuli, save)
@@ -87,10 +84,11 @@ end
 
     figure('Renderer', 'painters', 'Position', [10 10 800 400])
     [nOccurences, letterChars] = cellhist(stimuli);
-    title({[num2str(blockDef(1)) '-back letter frequency histogram'], [num2str(blockDef(2)) ' trials per block with ' num2str(round((blockDef(3)/blockDef(2))*100)) ' "yes" trials'], [num2str(N) ' samples (' num2str(N*blockDef(2)) ' total letters)']});
+    title({[num2str(blockDef(1)) '-back letter frequency histogram'], [num2str(blockDef(2)) ' trials per block with ' num2str(blockDef(3)) ' "yes" trials'], [num2str(N) ' samples (' num2str(N*blockDef(2)) ' total letters)']});
     
     if save
         saveas(gcf,['letterHistogram_' num2str(blockDef(1)) '_' num2str(blockDef(2)) '_' num2str(blockDef(3)) '_' num2str(N) 'samples.jpg'])
+        saveas(gcf,['letterHistogram_' num2str(blockDef(1)) '_' num2str(blockDef(2)) '_' num2str(blockDef(3)) '_' num2str(N) 'samples.fig'])
     end
     
 end
