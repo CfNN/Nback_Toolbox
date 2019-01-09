@@ -1,7 +1,9 @@
-function [n cellout]=cellhist(CELL)
+function [n cellout]=cellhist(CELL, NORMALIZE)
 % this function plots a histogram based on char cell array.
 % Input: CELL - a cell string array (Nx1)
-% 
+%        NORMALIZE - whether or not the data are to be normalized to show
+%        probability on vertical axis instead of counts. Added by Morgan
+%        Talbot to enable display of probability distribution
 %Output: n - alements in a bin
 %        cellout - the bin value( a char)
 
@@ -21,6 +23,12 @@ for i=1:length(cellout)
 end
 %[n,IX] = sort(n); % commented out by Morgan Talbot to avoid sorting
 %cellout=cellout(IX) % commented out by Morgan Talbot to avoid sorting
+
+% Added by Morgan Talbot to enable display of probability distribution
+if NORMALIZE
+   n = n/numel(CELL); 
+end
+
 bar(1:length(n),n);
 1;
 set(gca,'XTick',1:length(n))

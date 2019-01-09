@@ -6,14 +6,11 @@
 % Set the current MATLAB folder to the folder where this script is stored
 cd(fileparts(which(mfilename)));
 
-addpath("./cellhist");
-addpath("./rotateticklabel");
-
-% Set the current MATLAB folder to the folder where this script is stored
-cd(fileparts(which(mfilename)));
-
 % Add the GenRandomTrials function folder to the MATLAB path
 addpath('./../code_backend/GenRandomTrials');
+% Add helper functions to the MATLAB path
+addpath("./cellhist");
+addpath("./rotateticklabel");
            
 stimulusList = {
                 'a', 'A';
@@ -77,18 +74,40 @@ save('genRandomBlock_tests_data')
 %% Function that runs genRandomBlock N times and generates a letter histogram
 function [nOccurences, letterChars] = make_letter_hist(blockDef, N, stimulusList, zeroBackYesStimuli, save)
 
-stimuli = {};
+% positionYesCounts has one entry for each position in the trial block
+% being generated - it counts up how many times a "yes" trial was observed
+% in that position.
+positionYesCounts = zeros(blockDef(2), 1);
+stimuli = cell(N*blockDef(2), 1);
 for i = 1:N
-    stimuli = vertcat(stimuli, genRandomBlock(blockDef, stimulusList, zeroBackYesStimuli)); %#ok<AGROW>
+    newStim = genRandomBlock(blockDef, stimulusList, zeroBackYesStimuli);
+    stimuli(((i-1)*blockDef(2)+1):i*blockDef(2)) = newStim;
+    
+    yesInds = cell2mat(getCorrectYesNo(newStim, blockDef, stimulusList, zeroBackYesStimuli));
+    newPositionYesCounts = zeros(blockDef(2), 1);
+    newPositionYesCounts(yesInds) = 1;
+    positionYesCounts = positionYesCounts + newPositionYesCounts;
 end
 
     figure('Renderer', 'painters', 'Position', [10 10 800 400])
-    [nOccurences, letterChars] = cellhist(stimuli);
+    [nOccurences, letterChars] = cellhist(stimuli, true);
+    ylabel('Probability of presentation per trial');
     title({[num2str(blockDef(1)) '-back letter frequency histogram'], [num2str(blockDef(2)) ' trials per block with ' num2str(blockDef(3)) ' "yes" trials'], [num2str(N) ' samples (' num2str(N*blockDef(2)) ' total letters)']});
     
     if save
         saveas(gcf,['letterHistogram_' num2str(blockDef(1)) '_' num2str(blockDef(2)) '_' num2str(blockDef(3)) '_' num2str(N) 'samples.jpg'])
         saveas(gcf,['letterHistogram_' num2str(blockDef(1)) '_' num2str(blockDef(2)) '_' num2str(blockDef(3)) '_' num2str(N) 'samples.fig'])
+    end
+    
+    figure('Renderer', 'painters', 'Position', [10 10 800 400])
+    bar(positionYesCounts/numel(stimuli));
+    xlabel('Trial index in block');
+    ylabel('Probability of "yes" trial');
+    title({[num2str(blockDef(1)) '-back "yes" position histogram'], [num2str(blockDef(2)) ' trials per block with ' num2str(blockDef(3)) ' "yes" trials'], [num2str(N) ' samples (' num2str(N*blockDef(2)) ' total letters)']});
+    
+    if save
+        saveas(gcf,['yesPositionHistogram_' num2str(blockDef(1)) '_' num2str(blockDef(2)) '_' num2str(blockDef(3)) '_' num2str(N) 'samples.jpg'])
+        saveas(gcf,['yesPositionHistogram_' num2str(blockDef(1)) '_' num2str(blockDef(2)) '_' num2str(blockDef(3)) '_' num2str(N) 'samples.fig'])
     end
     
 end
