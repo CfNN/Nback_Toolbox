@@ -48,15 +48,23 @@ blockOutline = {
 % aliases. For example:
 % INCORRECT (will cause immediate error):
 % stimulusList = {
-%                 'a', 'A', 'eh';
+%                 'a', 'A', 'Gday';
 %                 'b';
 %                 'c', 'C';  
 %                };
 % CORRECT:
 % stimulusList = {
-%                 'a', 'A', 'eh';
+%                 'a', 'A', 'Gday';
 %                 'b', {}, {};
 %                 'c', 'C', {};  
+%                };
+%
+% Note also that you are not restricted to letters - you can use whole
+% words, like in the following:
+% stimulusList = {
+%                 'Horse', 'Zebra', 'Pony';
+%                 'Cat', 'Lion', 'Tiger';
+%                 'Elephant', {}, {};  
 %                };
            
 stimulusList = {
