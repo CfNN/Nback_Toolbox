@@ -1,4 +1,4 @@
-function stimuli = genRandomBlock(blockDef, stimulusList, zeroBackYesStimuli)
+function [stimuli, yesNo] = genRandomBlock(blockDef, stimulusList, zeroBackYesStimuli)
 % GENRANDOMBLOCK: A helper function to GenRandomTrials.m, which generates a
 % random list of stimulus names. 
 %
@@ -25,6 +25,10 @@ function stimuli = genRandomBlock(blockDef, stimulusList, zeroBackYesStimuli)
 % stimuli: a cell array of strings with a single column - specifies a
 % sequence of stimulus names to be presented during an experiment block.
 %
+% yesNo: a matrix of booleans with one column, where each value of '1' or
+% 'true' represents a "yes" trial and each value of '0' or 'false'
+% represents a "no" trial. 
+%
 % See also: GENRANDOMTRIALS
 
 
@@ -41,69 +45,155 @@ if nBack > 0 && nYesTrials/nTrials > 0.5
     warning('A proportion of "yes" trials in a single block greater than 50% can cause the trial generation algorithm to "get stuck" in an infinite loop, because the possible stimulus orders are too constrained. If the algorithm does not finish within a few seconds, cancel it with "control-c" and try again if necessary');
 end
 
-stimuli = cell(nTrials, 1);
+% Start with all trials as "no" trials (false)
+yesNo = false(blockDef(2), 1);
 
-yesTrialCount = 0;
-while yesTrialCount < nYesTrials
+% First trial that could possibly be a "yes" trial based on the nBack
+% number (e.g. for 2-back, the third trial is the first time there was a
+% stimulus two trials ago for the participant to keep track of)
+firstPossibleYesLoc = nBack+1;
+
+% Choose a random selection of trials to turn into "yes" trials
+yesInds = randsample(firstPossibleYesLoc:nTrials, blockDef(3));
+yesNo(yesInds) = true;
+
+% Choose appropriate stimuli such that each prescribed "yes" trial is
+% turned into a yes trial, while making sure not to inadvertently create
+% extra yes trials.
+if nBack == 0
+    stimuli = cell(nTrials, 1);
+    for i = 1:numel(yesInds)
+        [stim, ~] = getRandomStimPair(zeroBackYesStimuli);
+        stimuli(yesInds(i)) = {stim};
+    end
+else
     
-    % Find an appropriate pair of locations to place the stimulus pair.
-    % This is accomplished by first choosing a random stimulus index, and
-    % checking whether it and its counterpart N trials ahead are both
-    % either empty or contain an alias of the stimuli being used here. If
-    % they meet this criterion, the stimuli are added to these two indices
-    % - otherwise, start over with a new random index. 
-    foundPlace = false;
-    while (~foundPlace)
+    start_over = true;
+    
+    while start_over
         
-        if nBack > 0
-            [stim1, stim2] = getRandomStimPair(stimulusList);
-        elseif nBack == 0
-            [stim1, stim2] = getRandomStimPair(zeroBackYesStimuli);
-        end
+        start_over = false;
         
-        firstInd = randi([1, nTrials-nBack]);
-        secondInd = firstInd + nBack;
-        
-        if isempty(stimuli{firstInd}) || stimMatch(stimuli{firstInd}, stim1, stimulusList)
-            if isempty(stimuli{secondInd}) || stimMatch(stimuli{secondInd}, stim1, stimulusList)
-                % Make sure that both indices don't just match the same
-                % stimulus already (in this case, we would be replacing an
-                % existing "yes" answer, and would end up with too few of
-                % them)
-                if ~(stimMatch(stimuli{firstInd}, stim1, stimulusList) && stimMatch(stimuli{secondInd}, stim1, stimulusList))
+        stimuli = cell(nTrials, 1);
+    
+        remainingYesInds = yesInds;
+
+        while numel(remainingYesInds) > 0 && ~start_over
+
+            firstInd = remainingYesInds(1) - nBack;
+            secondInd = remainingYesInds(1);
+
+            foundLetter = false;
+
+            while (~foundLetter)
+
+                % If there is already a stimulus at the first index, use
+                % aliases of the same stimulus. Otherwise, use a random
+                % stimulus. First, check for the corner case where both
+                % indices are already occupied (and not by aliases of each
+                % other). If this occurs, start over from the beginning. 
+                if ~isempty(stimuli{firstInd}) && ~isempty(stimuli{secondInd}) && ~stimMatch(stimuli(firstInd), stimuli(secondInd), stimulusList)
+                    start_over = true;
+                    break;
+                elseif ~isempty(stimuli{firstInd})
+
+                    % Find the row of stimulusList that matches the stimulus
+                    % already at the first index
+                    [stimulusListRow, ~] = find(strcmp(stimulusList, stimuli{firstInd}));
+
+                    % Choose two random entries from that row
+                    [stim1, stim2] = getRandomStimPair(stimulusList(stimulusListRow, :));
+
+                    constrainedLetterChoice = true;
                     
-                    % Make sure that any newly added stimuli that create
-                    % more than one new "yes" trial by "bridging"
-                    % previously separated matching stimuli do not cause
-                    % the number of yes trials to get too high (not an
-                    % issue for nBack = 0).
-                    if nBack == 0
-                        foundPlace = true;
-                        yesTrialCount = yesTrialCount + 1;
+                elseif ~isempty(stimuli{secondInd})
+                    
+                    % Find the row of stimulusList that matches the stimulus
+                    % already at the first index
+                    [stimulusListRow, ~] = find(strcmp(stimulusList, stimuli{secondInd}));
+
+                    % Choose two random entries from that row
+                    [stim1, stim2] = getRandomStimPair(stimulusList(stimulusListRow, :));
+
+                    constrainedLetterChoice = true;  
+                    
+                else
+                    % Choose a random stimulus, and then pick two random
+                    % aliases of that stimulus
+                    [stim1, stim2] = getRandomStimPair(stimulusList);
+
+                    constrainedLetterChoice = false;
+                end
+
+                % This will be set to "true" if this choice of stimulus is
+                % unnaceptable for some reason
+                rejectLetterChoice = false;
+
+                % Check for any problems caused by the earliest stimulus that
+                % was changed forming an "nBack chain" with previous trials.
+                if firstInd - nBack >= 1 && stimMatch(stim1, stimuli(firstInd - nBack), stimulusList)
+
+                    % If chaining has occurred but the extra yes trial was
+                    % going to be a yes trial anyway, it's fine
+                    if yesNo(firstInd) == true
+
+                        % Remove the extra "yes" trial from the list of yes
+                        % trials to add, as it has been added "by accident"
+                        remainingYesInds = remainingYesInds(remainingYesInds ~= firstInd);
                     else
-                        yesTrialsAdded = 1;
-                        if firstInd - nBack >= 1 && stimMatch(stim1, stimuli(firstInd - nBack), stimulusList) && ~stimMatch(stimuli{firstInd}, stim1, stimulusList)
-                            yesTrialsAdded = yesTrialsAdded + 1;
-                        end
-                        if secondInd + nBack <= nTrials && stimMatch(stim1, stimuli(secondInd + nBack), stimulusList) && ~stimMatch(stimuli{secondInd}, stim1, stimulusList)
-                            yesTrialsAdded = yesTrialsAdded + 1;
-                        end
-                        
-                        if yesTrialCount + yesTrialsAdded <= nYesTrials
-                            yesTrialCount = yesTrialCount + yesTrialsAdded;
-                            foundPlace = true;
-                        end
-                        
+
+                        % An extra yes trial has been added at an unwanted
+                        % position - reject this stimulus choice
+                        rejectLetterChoice = true;
+                    end
+
+                end
+
+                % Check for any problems caused by the latest stimulus that was
+                % changed forming an "nBack chain" with later trials.
+                if secondInd + nBack <= nTrials && stimMatch(stim1, stimuli(secondInd + nBack), stimulusList)
+
+                    % If chaining has occurred but the extra yes trial was
+                    % going to be a yes trial anyway, it's fine
+                    if yesNo(secondInd + nBack) == true
+
+                        % Remove the extra "yes" trial from the list of yes
+                        % trials to add, as it has been added "by accident"
+                        remainingYesInds = remainingYesInds(remainingYesInds ~= secondInd + nBack);
+                    else
+
+                        % An extra yes trial has been added at an unwanted
+                        % position - reject this stimulus choice
+                        rejectLetterChoice = true;
                     end
                 end
+                
+                % If the letter choice is invalid, but it was also
+                % constrained by the existing stimuli, there is no way
+                % forward - the simplest solution is to start over with
+                % generating this block. This should not happen very often
+                % except possible with very constrained blocks (i.e. high
+                % number of "yes" trials)
+                if rejectLetterChoice && constrainedLetterChoice
+                    start_over = true;
+                    break;
+                end
+                
+                foundLetter = ~rejectLetterChoice;
+
             end
+
+            stimuli(firstInd) = {stim1};
+            stimuli(secondInd) = {stim2};
+
+            % Remove the index of the yes trial that has been added from yesInds 
+            remainingYesInds = remainingYesInds(2:end);
+            
+            disp(stimuli);
+            disp(remainingYesInds);
+
         end
     end
-    
-    % Add the stimulus pair to the selected locations
-    stimuli(firstInd) = {stim1};
-    stimuli(secondInd) = {stim2};
-    
 end
 
 % Initialize other trials to random stimuli, avoiding stimuli that would

@@ -3,6 +3,15 @@
 % genRandomBlock is the key function of GenRandomTrials, which generates a
 % sequence of randomized trial blocks for the Nback task. 
 
+clear;
+close all;
+
+% To perform a full test (with many, many iterations), set this to 1. Set
+% it to a lower value to perform a quick test with fewer iterations. E.g.
+% setting this to 0.1 will generate histograms with 1/10th the number of
+% iterations that would be used in a full test. 
+FRACTION_OF_FULL_TEST = 0.01;
+
 % Set the current MATLAB folder to the folder where this script is stored
 cd(fileparts(which(mfilename)));
 
@@ -44,19 +53,19 @@ stimulusList = {
 zeroBackYesStimuli = {'h', 'H'};
 
 %% 112,000 samples (1,008,000 letters)
-N = 112000;
+N = round(112000*FRACTION_OF_FULL_TEST);
 
 % 0-back with 9 trials, 33% "yes" trials in each block
 [nOccurences_0_9_3, ~] = make_letter_hist([0 9 3], N, stimulusList, zeroBackYesStimuli, true);
 
 %% 67,000 samples (1,005,000 letters)
-N = 67000;
+N = round(67000*FRACTION_OF_FULL_TEST);
 
 % 2-back with 15 trials, 33% "yes" trials in each block
 [nOccurences_2_15_5, ~] = make_letter_hist([2 15 5], N, stimulusList, zeroBackYesStimuli, true);
 
 %% 10,000 samples (1,000,000 letters)
-N = 10000; 
+N = round(10000*FRACTION_OF_FULL_TEST);
 
 % 0-back with 100 trials, 33% "yes" trials in each block
 [nOccurences_0_100_33, ~] = make_letter_hist([0 100 33], N, stimulusList, zeroBackYesStimuli, true);
