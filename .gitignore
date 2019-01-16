@@ -1,5 +1,8 @@
 *.asv
 *.mat
 *.m~
+*.jpg
+*.fig
+*.zip
 
 software_tests/test_results/
