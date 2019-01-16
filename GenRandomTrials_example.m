@@ -85,17 +85,21 @@ stimulusList = {
                 'o', 'O';
                 'p', 'P';
                 'q', 'Q';
-                'r', 'R'; 
+                'r', 'R';
                 's', 'S';
                 't', 'T';
                 'u', 'U';
-                'v', 'V'; 
+                'v', 'V';
                 'w', 'W';
                 'x', 'X';
                 'y', 'Y';
                 'z', 'Z';
                };
-
+           
+% Make sure the stimulusList is valid (this function will throw an error if
+% there is an issue). Do not remove this line if an error occurs - instead,
+% carefully check to make sure your stimulusList contains no duplicates.
+stimulusListValidityCheck(stimulusList);
            
 % zeroBackYesStimuli: A cell array of stimulus names, like stimulusList,
 % with a single row. This defines the stimulus names for which the correct

@@ -7,9 +7,9 @@ stimID = randi([1, size(stimulusList, 1)]);
 
 % Get number of non-empty entries in the row (number of aliases for this
 % stimulus)
-nAliases = numel(find(~cellfun(@isempty,stimulusList(stimID, :))));
+nonEmptyInds = find(~cellfun(@isempty,stimulusList(stimID, :)));
 
 % Choose two random entries from the row
-stim1 = stimulusList{stimID, randi([1, nAliases])};
-stim2 = stimulusList{stimID, randi([1, nAliases])};
+stim1 = stimulusList{stimID, nonEmptyInds(randsample(length(nonEmptyInds), 1))};
+stim2 = stimulusList{stimID, nonEmptyInds(randsample(length(nonEmptyInds), 1))};
 end
