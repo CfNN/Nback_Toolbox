@@ -10,7 +10,7 @@ close all;
 % Set it to a lower value to perform a quick test with fewer iterations.
 % E.g. setting this to 0.1 will generate histograms with 1/10th the number
 % of iterations that would be used in a full test.
-FRACTION_OF_FULL_TEST = 1;
+FRACTION_OF_FULL_TEST = 0.01;
 
 % Set the current MATLAB folder to the folder where this script is stored
 cd(fileparts(which(mfilename)));
@@ -78,7 +78,7 @@ N = round(10000*FRACTION_OF_FULL_TEST);
 
 clear N;
 
-save(['genRandomBlock_testx' num2str(FRACTION_OF_FULL_TEST) '_data'])
+save(['genRandomBlock_testx' num2str(FRACTION_OF_FULL_TEST) '_data.mat'])
 
 %% Function that runs genRandomBlock N times and generates a letter histogram
 function [nOccurences, letterChars] = make_letter_hist(blockDef, N, stimulusList, zeroBackYesStimuli, save)
