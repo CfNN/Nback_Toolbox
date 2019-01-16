@@ -69,14 +69,24 @@ if nBack == 0
 else
     
     start_over = true;
+    iters = 0;
     
     while start_over
+        iters = iters + 1;
+        if iters >= 1000 && mod(iters,1000) == 0
+            warning(['genRandomBlock algorithm is having difficulty finding a random block with the chosen random sample of "yes trial" indices: ' num2str(iters) ' attempts and counting! If the algorithm finishes, it''s fine, but probably best to inspect the trials to make sure they''re ok.']);
+        end
         
         start_over = false;
         
         stimuli = cell(nTrials, 1);
     
         remainingYesInds = yesInds;
+        
+        % Shuffle - each time the algorithm starts over with these same yes
+        % trial indices, it attempts to add the "yes" trials in a different
+        % order
+        remainingYesInds = remainingYesInds(randperm(numel(remainingYesInds)));
 
         while numel(remainingYesInds) > 0 && ~start_over
 
@@ -86,52 +96,93 @@ else
             foundLetter = false;
 
             while (~foundLetter)
-
-                % If there is already a stimulus at the first index, use
-                % aliases of the same stimulus. Otherwise, use a random
-                % stimulus. First, check for the corner case where both
-                % indices are already occupied (and not by aliases of each
-                % other). If this occurs, start over from the beginning. 
+                
+                %% Check for any conditions that predetermine the choice of stimulus (random stimulus otherwise)
+                % First, check for the case where both indices are
+                % already occupied (and not by aliases of each other). If
+                % this occurs, start over with an empty stimulus list.
                 if ~isempty(stimuli{firstInd}) && ~isempty(stimuli{secondInd}) && ~stimMatch(stimuli(firstInd), stimuli(secondInd), stimulusList)
                     start_over = true;
                     break;
+                    
+                % If there is already a stimulus at the first index, we must use aliases of that stimulus.
                 elseif ~isempty(stimuli{firstInd})
 
                     % Find the row of stimulusList that matches the stimulus
                     % already at the first index
                     [stimulusListRow, ~] = find(strcmp(stimulusList, stimuli{firstInd}));
 
-                    % Choose two random entries from that row
+                    % Choose two random entries (aliases) from that row
                     [stim1, stim2] = getRandomStimPair(stimulusList(stimulusListRow, :));
 
-                    constrainedLetterChoice = true;
-                    
+                    predeterminedStimChoice = true;
+                
+                % If there is already a stimulus at the second index, we
+                % must use aliases of that stimulus
                 elseif ~isempty(stimuli{secondInd})
                     
                     % Find the row of stimulusList that matches the stimulus
                     % already at the first index
                     [stimulusListRow, ~] = find(strcmp(stimulusList, stimuli{secondInd}));
 
-                    % Choose two random entries from that row
+                    % Choose two random entries (aliases) from that row
                     [stim1, stim2] = getRandomStimPair(stimulusList(stimulusListRow, :));
 
-                    constrainedLetterChoice = true;  
+                    predeterminedStimChoice = true;
+                
+                % Check for the case where both of the following are true: 
+                % 1. There is already a stimulus N trials before the first 
+                % index 
+                % 2. The first index is itself designated as a "yes" trial 
+                % If this occurs, we must use aliases of the stimulus N 
+                % trials before the first index.
+                elseif firstInd - nBack >= 1 && ~isempty(stimuli{firstInd - nBack}) && yesNo(firstInd) == true
                     
+                    % Find the row of stimulusList that matches the stimulus
+                    % already at the first index
+                    [stimulusListRow, ~] = find(strcmp(stimulusList, stimuli{firstInd - nBack}));
+
+                    % Choose two random entries (aliases) from that row
+                    [stim1, stim2] = getRandomStimPair(stimulusList(stimulusListRow, :));
+
+                    predeterminedStimChoice = true;
+                
+                % Check for the case where both of the following are true: 
+                % 1. There is already a stimulus N trials after the
+                % second index
+                % 2. The trial N trials after the second index is itself
+                % designated as a "yes" trial
+                % If this occurs, we must use aliases of the stimulus N
+                % trials after the second index
+                elseif secondInd + nBack <= nTrials && ~isempty(stimuli{secondInd + nBack}) && yesNo(secondInd + nBack) == true
+                    % Find the row of stimulusList that matches the stimulus
+                    % already at the first index
+                    [stimulusListRow, ~] = find(strcmp(stimulusList, stimuli{secondInd + nBack}));
+
+                    % Choose two random entries (aliases) from that row
+                    [stim1, stim2] = getRandomStimPair(stimulusList(stimulusListRow, :));
+
+                    predeterminedStimChoice = true;
+                    
+                % If none of the conditions above are met, we are free to
+                % choose a random stimulus.
                 else
                     % Choose a random stimulus, and then pick two random
                     % aliases of that stimulus
                     [stim1, stim2] = getRandomStimPair(stimulusList);
 
-                    constrainedLetterChoice = false;
+                    predeterminedStimChoice = false;
                 end
+                
 
-                % This will be set to "true" if this choice of stimulus is
-                % unnaceptable for some reason
-                rejectLetterChoice = false;
+                %% Check if the chosen stimulus conflicts with which trials should be yes/no trials
+                % This will be set to "true" if our choice of stimulus for
+                % these two indices is unnaceptable for some reason
+                rejectStimChoice = false;
 
                 % Check for any problems caused by the earliest stimulus that
                 % was changed forming an "nBack chain" with previous trials.
-                if firstInd - nBack >= 1 && stimMatch(stim1, stimuli(firstInd - nBack), stimulusList)
+                if firstInd - nBack >= 1 && ~isempty(stimuli{firstInd - nBack}) && stimMatch(stim1, stimuli(firstInd - nBack), stimulusList)
 
                     % If chaining has occurred but the extra yes trial was
                     % going to be a yes trial anyway, it's fine
@@ -144,14 +195,14 @@ else
 
                         % An extra yes trial has been added at an unwanted
                         % position - reject this stimulus choice
-                        rejectLetterChoice = true;
+                        rejectStimChoice = true;
                     end
 
                 end
 
                 % Check for any problems caused by the latest stimulus that was
                 % changed forming an "nBack chain" with later trials.
-                if secondInd + nBack <= nTrials && stimMatch(stim1, stimuli(secondInd + nBack), stimulusList)
+                if secondInd + nBack <= nTrials && ~isempty(stimuli{secondInd + nBack}) && stimMatch(stim1, stimuli(secondInd + nBack), stimulusList)
 
                     % If chaining has occurred but the extra yes trial was
                     % going to be a yes trial anyway, it's fine
@@ -164,40 +215,39 @@ else
 
                         % An extra yes trial has been added at an unwanted
                         % position - reject this stimulus choice
-                        rejectLetterChoice = true;
+                        rejectStimChoice = true;
                     end
                 end
                 
+                %% Start over if a predetermined stimulus choice is invalid
                 % If the letter choice is invalid, but it was also
                 % constrained by the existing stimuli, there is no way
                 % forward - the simplest solution is to start over with
                 % generating this block. This should not happen very often
                 % except possible with very constrained blocks (i.e. high
                 % number of "yes" trials)
-                if rejectLetterChoice && constrainedLetterChoice
+                if rejectStimChoice && predeterminedStimChoice
                     start_over = true;
                     break;
                 end
                 
-                foundLetter = ~rejectLetterChoice;
+                foundLetter = ~rejectStimChoice;
 
             end
-
+            
+            %% Assign the stimuli to create the new yes trial(s)
             stimuli(firstInd) = {stim1};
             stimuli(secondInd) = {stim2};
 
             % Remove the index of the yes trial that has been added from yesInds 
             remainingYesInds = remainingYesInds(2:end);
-            
-            disp(stimuli);
-            disp(remainingYesInds);
 
         end
     end
 end
 
-% Initialize other trials to random stimuli, avoiding stimuli that would
-% cause additional "yes" answers in the block. 
+%% Initialize remaining empty trials to random stimuli,
+% avoiding stimuli that would cause additional "yes" answers in the block. 
 for i = 1:nTrials
     
     if isempty(stimuli{i})

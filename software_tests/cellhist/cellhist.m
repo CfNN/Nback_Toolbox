@@ -33,4 +33,4 @@ bar(1:length(n),n);
 1;
 set(gca,'XTick',1:length(n))
 set(gca,'XTickLabel',cellout)
-rotateticklabel(gca,90)
+rotateticklabel(gca,90);
