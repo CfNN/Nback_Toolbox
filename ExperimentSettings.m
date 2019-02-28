@@ -12,10 +12,6 @@ settings.UseMRITrigger = false;
 settings.MRITriggerManufacturer = 'Current Designs, Inc.';
 settings.MRITriggerUsageName = 'Keyboard';
 
-% Set to "true" to display live performance metrics at the bottom of the 
-% screen during the experiment session. To hide metrics, set to "false"
-settings.DisplayPerfMetrics = true;
-
 % Index of the keyboard/other device that the participant will use to make
 % their responses. To see keyboard device indices, type GetKeyboardIndices()
 % into the MATLAB command window and use the resulting value. For other
@@ -45,6 +41,10 @@ settings.NoKeyNames  = {'2', '2@'};
 % When you press one of these, the session will immediately end (with data
 % autosaved).
 settings.QuitKeyNames = {'q', 'escape'};
+
+% Set to "true" to display live performance metrics at the bottom of the 
+% screen during the experiment session. To hide metrics, set to "false"
+settings.DisplayPerfMetrics = true;
 
 % Set what is displayed during the inter-trial interval (ITI). 
 % Set to "blank" for a blank screen, "fixation" for a fixation cross. 
