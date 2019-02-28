@@ -12,14 +12,8 @@ function [trials, runningVals, quitKeyPressed] = RunNextTrial(obj, trials, setti
 % such to the Main_Nback script, which will then end the experiment session. 
 quitKeyPressed = false;
 
-% Specify allowable key names, restrict input to these (if empty list "[]",
-% all keys are allowed). Uncomment the following line (and comment the next
-% one) to restrict all keys except those of interest. This is not normally
-% preferred, because participants may press the wrong buttons at times
-% without the experimenter knowing,  and it is often best to log the data
-% anyway and sort it out later.
-% activeKeys = [KbName(settings.YesKeyIDs) KbName(settings.NoKeyIDs) KbName('Escape') KbName('q')];
-activeKeys = [];
+% Only allow key presses as specified in ExperimentSettings
+activeKeys = [settings.YesKeyCodes, settings.NoKeyCodes, settings.QuitKeyCodes];
 RestrictKeysForKbCheck(activeKeys);
 
 % Establish the full inter-trial interval (ITI) duration (may be fixed or
@@ -39,16 +33,19 @@ timedout = false;
 stimEnded = false;
 while ~timedout
     
-    % Check for keyboard presses while also getting a timestamp (timestamp
-    % is recorded in keyTime regardless of whether a key was pressed)
-    [ keyIsDown, keyTime, keyCode ] = KbCheck; % keyTime is from an internal call to GetSecs
+    % Check for quit key
+    [ keyIsDown, ~, keyCode ] = KbCheck(settings.ControlDeviceIndex);
+    if keyIsDown && ismember(find(keyCode), settings.QuitKeyCodes)
+        quitKeyPressed = true;
+        return
+    end
+    
+    % Check for keyboard responses and get a timestamp (timestamp is
+    % recorded in keyTime regardless of whether a key was pressed)
+    [ keyIsDown, keyTime, keyCode ] = KbCheck(settings.RespondDeviceIndex); % keyTime is from an internal call to GetSecs
 
     % Record response and response timestamp if key pressed
     if (keyIsDown)
-        if strcmpi(KbName(keyCode), 'q') || strcmpi(KbName(keyCode), 'escape')
-            quitKeyPressed = true;
-            return;
-        end
 
         trials(runningVals.currentTrial).ResponseTimestamp = keyTime;
         % Note: ReactionTime is exactly the same as ResponseTimestamp
@@ -79,16 +76,16 @@ end
 
 % Check if response is correct
 if trials(runningVals.currentTrial).YesTrial == true
-    correctKeys = settings.YesKeyIDs;
+    correctKeys = settings.YesKeyNames;
 else
-    correctKeys = settings.NoKeyIDs;
+    correctKeys = settings.NoKeyNames;
 end
 
 correct = false;
 for i = 1:numel(correctKeys)
     if strcmpi(correctKeys{i}, trials(runningVals.currentTrial).Response)
         correct = true;
-        break;
+        break
     end
 end
 trials(runningVals.currentTrial).Correct = correct;

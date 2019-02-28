@@ -53,7 +53,7 @@ try
     [subjectNumber, sessionNumber, subjectHandedness, cancelled] = GetSessionConfig(settings);
     if (cancelled)
         disp('Session cancelled by experimenter');
-        return; % Stops this script from running to end the experiment session
+        return % Ends the session
     end
     clear cancelled;
 
@@ -61,7 +61,11 @@ try
     ui = UserInterface();
 
     % Use the ui to show experiment instructions
-    ui.ShowInstructions(settings);
+    quitKeyPressed = ui.ShowInstructions(settings);
+    if quitKeyPressed
+        cleanup();
+        return  % Ends the session
+    end
 
     % Use the ui to show the "ready" screen with a timer, and wait for the MRI
     % trigger (or a key press, depending on what is specified in
@@ -70,11 +74,19 @@ try
     % triggerTimestamp, there is be a (tiny) time difference between when
     % the two are recorded! For this reason, always use triggerTimestamp for 
     % important calculations if possible. 
-    [triggerTimestamp, sessionStartDateTime] = ui.ShowReadyTrigger(settings);
+    [triggerTimestamp, sessionStartDateTime, quitKeyPressed] = ui.ShowReadyTrigger(settings);
+    if quitKeyPressed
+        cleanup();
+        return  % Ends the session
+    end
 
     % Use the ui to show a fixation cross for the specified amount of time in
     % seconds
-    [sessionStartFixationOnsetTimestamp, sessionStartFixationOffsetTimestamp] = ui.ShowFixation(settings.SessionStartFixationDur, settings, runningVals);
+    [sessionStartFixationOnsetTimestamp, sessionStartFixationOffsetTimestamp, quitKeyPressed] = ui.ShowFixation(settings.SessionStartFixationDur, settings, runningVals);
+    if quitKeyPressed
+        cleanup();
+        return  % Ends the session
+    end
 
     % Loop through the trials structure (note - runningVals.currentTrial keeps
     % track of which trial you are on)
@@ -84,23 +96,24 @@ try
         if runningVals.currentTrial == 1 || trials(runningVals.currentTrial).BlockNumber > trials(runningVals.currentTrial - 1).BlockNumber
 
             if trials(runningVals.currentTrial).Nback == 0
-                msg = ['Press ''' settings.YesKeyIDs{1} ''' if the letter is ' commaSepList(zeroBackYesStimuli, 'or', true) '\n\nPress ''' settings.NoKeyIDs{1} ''' for any other letter'];
+                msg = ['Press ''' settings.YesKeyNames{1} ''' if the letter is ' commaSepList(zeroBackYesStimuli, 'or', true) '\n\nPress ''' settings.NoKeyNames{1} ''' for any other letter'];
             elseif trials(runningVals.currentTrial).Nback > 0
-                msg = ['Press ''' settings.YesKeyIDs{1} ''' if the letter matches the one seen ' num2str(trials(runningVals.currentTrial).Nback) ' trials ago\n\nPress ''' settings.NoKeyIDs{1} ''' if it does not match'];
+                msg = ['Press ''' settings.YesKeyNames{1} ''' if the letter matches the one seen ' num2str(trials(runningVals.currentTrial).Nback) ' trials ago\n\nPress ''' settings.NoKeyNames{1} ''' if it does not match'];
             end
 
-            ui.RestBreak(msg, 28, settings.RestDur, settings, runningVals);
+            [~, ~, quitKeyPressed] = ui.RestBreak(msg, 28, settings.RestDur, settings, runningVals);
+            if quitKeyPressed
+                cleanup();
+                return  % Ends the session
+            end
         end
 
         % Run the next trial (stimulus display) according to what is specified 
         % in the "trials" variable
         [trials, runningVals, quitKeyPressed] = ui.RunNextTrial(trials, settings, runningVals);
-
-        % Close program if quit key was pressed during the trial
         if quitKeyPressed
             cleanup();
-            % Stop this script from running to end experiment session
-            return; 
+            return % Ends the session
         end
 
         % Autosave data in case the experiment is interrupted partway through
@@ -116,8 +129,12 @@ try
 
     % Use the ui to show a fixation cross for the specified amount of time in
     % seconds
-    [sessionEndFixationOnsetTimestamp, sessionEndFixationOffsetTimestamp] = ui.ShowFixation(settings.SessionEndFixationDur, settings, runningVals);
-
+    [sessionEndFixationOnsetTimestamp, sessionEndFixationOffsetTimestamp, quitKeyPressed] = ui.ShowFixation(settings.SessionEndFixationDur, settings, runningVals);
+    if quitKeyPressed
+        cleanup();
+        return % Ends the session
+    end
+    
     cleanup();
 
     % Save the data to a .mat, delete autosaved version

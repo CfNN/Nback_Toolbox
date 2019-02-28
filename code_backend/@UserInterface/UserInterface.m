@@ -69,21 +69,23 @@ classdef UserInterface < handle
             
         end
         
-        ShowInstructions(obj, settings);
+        quitKeyPressed = ShowInstructions(obj, settings);
         
-        [triggerTimestamp, sessionStartDateTime] = ShowReadyTrigger(obj, settings);
+        [triggerTimestamp, sessionStartDateTime, quitKeyPressed] = ShowReadyTrigger(obj, settings);
         
-        [onsetTimestamp, offsetTimestamp] = ShowFixation(obj, duration, settings, runningVals);
+        [onsetTimestamp, offsetTimestamp, quitKeyPressed] = ShowFixation(obj, duration, settings, runningVals);
         
-        [onsetTimestamp, offsetTimestamp] = ShowBlank(obj, duration, settings, runningVals);
+        [onsetTimestamp, offsetTimestamp, quitKeyPressed] = ShowBlank(obj, duration, settings, runningVals);
         
-        [onsetTimestamp, offsetTimestamp] = ShowText(obj, text, textSize, duration, runningVals);
+        [onsetTimestamp, offsetTimestamp, quitKeyPressed] = ShowText(obj, text, textSize, duration, runningVals);
         
-        [onsetTimestamp, offsetTimestamp] = ShowTextWait(obj, text, textSize, runningVals);
+        [onsetTimestamp, offsetTimestamp, quitKeyPressed] = ShowTextWait(obj, text, textSize, runningVals);
         
-        [onsetTimestamp, offsetTimestamp] = RestBreak(obj, text, textSize, duration, settings, runningVals);
+        [onsetTimestamp, offsetTimestamp, quitKeyPressed] = RestBreak(obj, text, textSize, duration, settings, runningVals);
         
         [trials, runningVals, quitKeyPressed] = RunNextTrial(obj, trials, settings, runningVals);
+        
+        quitKeyPressed = WaitAndCheckQuit(obj, duration, settings);
         
     end
     
