@@ -43,12 +43,6 @@ try
     % (e.g. live performance metrics) 
     InitRunningVals;
 
-    % If the user is running the code on a Mac, warn them about stimulus timing
-    % errors
-    if contains(upper(computer), 'MAC')
-        waitfor(msgbox('WARNING: Because you are running on a Mac, this program must allow PsychToolbox to skip screen synchronization checks that test whether stimuli are being presented at precisely the right time. This may result in slight stimulus timing errors (possibly up to a few milliseconds) - Windows and Linux provide more precision. The big red exclamation mark you will see when PsychToolbox starts is warning you of this same issue.'));
-    end
-
     % Use dialog boxes to get subject number, session number, etc. from the experimenter
     [subjectNumber, sessionNumber, subjectHandedness, cancelled] = GetSessionConfig(settings);
     if (cancelled)
