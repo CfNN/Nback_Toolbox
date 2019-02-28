@@ -83,13 +83,12 @@ classdef UserInterface < handle
         
         [trials, runningVals, quitKeyPressed] = RunNextTrial(obj, trials, settings, runningVals);
         
-        quitKeyPressed = WaitAndCheckQuit(obj, duration, settings);
-        
     end
     
     methods (Access = private)
         DrawPerformanceMetrics(obj, settings, runningVals);
         DrawFixation(obj);
         DrawText(obj, text, textSize);
+        quitKeyPressed = WaitAndCheckQuit(obj, duration, settings);
     end
 end
