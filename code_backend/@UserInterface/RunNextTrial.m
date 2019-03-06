@@ -51,7 +51,7 @@ while ~timedout
         % Note: ReactionTime is exactly the same as ResponseTimestamp
         % minus StimulusOnsetTimestamp
         trials(runningVals.currentTrial).ReactionTime = keyTime - tStimOn;
-        trials(runningVals.currentTrial).Response = KbName(keyCode);
+        trials(runningVals.currentTrial).ResponseKeyName = KbName(keyCode);
     end
     
     % Switch to inter-trial interval (ITI) after settings.StimDur elapses
@@ -83,7 +83,7 @@ end
 
 correct = false;
 for i = 1:numel(correctKeys)
-    if strcmpi(correctKeys{i}, trials(runningVals.currentTrial).Response)
+    if strcmpi(correctKeys{i}, trials(runningVals.currentTrial).ResponseKeyName)
         correct = true;
         break
     end

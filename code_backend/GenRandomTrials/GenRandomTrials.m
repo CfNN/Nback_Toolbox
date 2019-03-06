@@ -88,7 +88,7 @@ trials(n_trials) = struct();
 % Initialize empty fields;
 for t = 1:n_trials
     
-    trials(t).Response = 'none';
+    trials(t).ResponseKeyName = 'none';
     trials(t).Correct = false; % Boolean indicating whether participant responded correctly
     trials(t).ReactionTime = NaN;
     
